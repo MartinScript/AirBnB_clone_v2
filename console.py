@@ -130,34 +130,67 @@ class HBNBCommand(cmd.Cmd):
             NameError: when there is no object taht has the name
         """
         try:
-            if not args:
+            if not line:
                 raise SyntaxError()
-            args_list = args.split(" ")
+            my_list = line.split(" ")  # split cmd line into list
 
-            if args_list:
-                cls_name = args_list[0]
-            else:
+            if my_list:  # if list not empty
+                cls_name = my_list[0]  # extract class name
+            else:  # class name missing
                 raise SyntaxError()
 
-            my_dict = {}
-            for pair in args_list:
-                key, value = pair.split("=")
-                if int(value):
-                    my_dict[key] = int(value)
-                elif float(value):
-                    my_dict[key] = float(value)
+            kwargs = {}
+
+            for pair in my_list[1:]:
+                k, v = pair.split("=")
+                if self.is_int(v):
+                    kwargs[k] = int(v)
+                elif self.is_float(v):
+                    kwargs[k] = float(v)
                 else:
-                    value = value.replace("_", " ")
-                    my_dict[key] = value.strip("\"'")
+                    v = v.replace("_", " ")
+                    kwargs[k] = v.strip("\"'")
 
-            obj = self.classes[cls_name](**my_dict)
-            storage.new(obj)
-            obj.save()
-            print(obj.id)
+            obj = self.all_classes[cls_name](**kwargs)
+            storage.new(obj)  # store new object
+            obj.save()  # save storage to file
+            print(obj.id)  # print id of created object class
+
         except SyntaxError:
-            print("** class name is missing **")
+            print("** class name missing **")
         except KeyError:
             print("** class doesn't exist **")
+
+    def do_show(self, line):
+        """Prints the string representation of an instance
+        Exceptions:
+            SyntaxError: when there is no args given
+            NameError: when there is no object taht has the name
+            IndexError: when there is no id given
+            KeyError: when there is no valid id given
+        """
+        try:
+            if not line:
+                raise SyntaxError()
+            my_list = line.split(" ")
+            if my_list[0] not in self.all_classes:
+                raise NameError()
+            if len(my_list) < 2:
+                raise IndexError()
+            objects = storage.all()
+            key = my_list[0] + "." + my_list[1]
+            if key in objects:
+                print(objects[key])
+            else:
+                raise KeyError()
+        except SyntaxError:
+            print("** class name missing **")
+        except NameError:
+            print("** class doesn't exist **")
+        except IndexError:
+            print("** instance id missing **")
+        except KeyError:
+            print("** no instance found **")
 
     def help_create(self):
         """Help information for the create method"""
@@ -352,6 +385,23 @@ class HBNBCommand(cmd.Cmd):
         """Help information for the update class"""
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
+    @staticmethod
+    def is_int(n):
+        """checks if integer"""
+        try:
+            int(n)
+            return True
+        except ValueError:
+            return False
+
+    @staticmethod
+    def is_float(n):
+        try:
+            float(n)
+            return True
+        except ValueError:
+            return False
 
 
 if __name__ == "__main__":

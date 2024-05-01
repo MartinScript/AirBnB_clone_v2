@@ -1,4 +1,4 @@
-import json
+#!/usr/bin/python3
 from models.base_model import BaseModel, Base
 from models.user import User
 from models.state import State
@@ -8,7 +8,7 @@ from models.place import Place
 from models.review import Review
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.session import sessionmaker, Session
 from os import getenv
 
 all_classes = {

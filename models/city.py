@@ -10,3 +10,4 @@ class City(BaseModel, Base):
 
     __tablename__ = "cities"
     name = Column(String(128), nullable=False)
+    state_id = Column(String(60), Foreign_key("states.id"), nullable=False)
